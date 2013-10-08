@@ -26,6 +26,7 @@ typedef NS_ENUM(NSUInteger, RCState) {
     RCState _interactionState;
     NSPoint _origin;
     NSPoint _convertedOrigin;
+    float _scale;
 }
 
 @property (weak, nonatomic) LATOriginView *originView;
@@ -35,6 +36,8 @@ typedef NS_ENUM(NSUInteger, RCState) {
 - (void)updateCoordinateLabelWithRect:(NSRect)rect;
 - (CGPoint)invertedCGPoint:(CGPoint)point forView:(NSView *)view;
 - (NSRect)invertedRect:(NSRect)rect;
+- (int)maxAllowedWidth;
+- (int)maxAllowedHeight;
 
 @end
 
@@ -56,6 +59,7 @@ typedef NS_ENUM(NSUInteger, RCState) {
     
     [_rootView setDelegate:self];
     
+    _scale = 1.0f;
 }
 
 - (void)dealloc {
@@ -75,8 +79,27 @@ typedef NS_ENUM(NSUInteger, RCState) {
     NSWindow *keyWindow = [[NSApplication sharedApplication] mainWindow];
     
     NSRect keyWindowTargetFrame = keyWindow.frame;
-    keyWindowTargetFrame.size.width = image.size.width + _backgroundImageViewDeltaX;
-    keyWindowTargetFrame.size.height = image.size.height + _backgroundImageViewDeltaY;
+    
+    if (image.size.width > image.size.height) {
+        
+        _scale = (float)[self maxAllowedWidth] / image.size.width;
+        
+        if ((_scale * image.size.height) > [self maxAllowedHeight]) {
+            
+            _scale = (float)[self maxAllowedHeight] / image.size.height;
+        }
+    } else {
+        
+        _scale = (float)[self maxAllowedHeight] / image.size.height;
+        
+        if ((_scale * image.size.width) > [self maxAllowedWidth]) {
+            
+            _scale = (float)[self maxAllowedWidth] / image.size.width;
+        }
+    }
+    
+    keyWindowTargetFrame.size.width = (image.size.width * _scale) + _backgroundImageViewDeltaX;
+    keyWindowTargetFrame.size.height = (image.size.height * _scale) + _backgroundImageViewDeltaY;
     
     [keyWindow setFrame:keyWindowTargetFrame display:YES animate:YES];
     
@@ -163,12 +186,20 @@ typedef NS_ENUM(NSUInteger, RCState) {
 
 - (void)updateCoordinateLabelWithXCoordinate:(CGFloat)xCoordinate yCoordinate:(CGFloat)yCoordinate {
     
-    [self.coordinateField setStringValue:[NSString stringWithFormat:@"X: %.2f, Y: %.2f", xCoordinate, yCoordinate]];
+    [self.coordinateField setStringValue:[NSString stringWithFormat:@"X: %.2f, Y: %.2f", xCoordinate / _scale, yCoordinate / _scale]];
 }
 
 - (void)updateCoordinateLabelWithRect:(NSRect)rect {
     
-    [self.coordinateField setStringValue:[NSString stringWithFormat:@"X: %.2f, Y: %.2f, W: %.2f, H: %.2f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height]];
+    [self.coordinateField setStringValue:[NSString stringWithFormat:@"X: %.2f, Y: %.2f, W: %.2f, H: %.2f", rect.origin.x / _scale, rect.origin.y / _scale, rect.size.width / _scale, rect.size.height / _scale]];
+}
+
+- (int)maxAllowedHeight {
+    return (int)([[NSScreen mainScreen] frame].size.height * 0.7f);
+}
+
+- (int)maxAllowedWidth {
+    return (int)([[NSScreen mainScreen] frame].size.width * 0.7f);
 }
 
 #pragma mark - LATMouseDelegate methods
@@ -204,7 +235,7 @@ typedef NS_ENUM(NSUInteger, RCState) {
 - (void)mouseLocationDidChange:(NSPoint)newLocation forView:(NSResponder *)view {
     
     NSPoint centerPoint = NSMakePoint((int)(newLocation.x - floorf(self.originView.frame.size.width / 2)), (int)(newLocation.y - floorf(self.originView.frame.size.height / 2)));
-//    _origin = centerPoint;
+
     [self.originView setFrameOrigin:centerPoint];
     
     [self.originView setHidden:!NSContainsRect(self.rootView.frame, self.originView.frame)];
