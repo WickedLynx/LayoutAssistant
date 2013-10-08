@@ -27,6 +27,7 @@ typedef NS_ENUM(NSUInteger, RCState) {
     NSPoint _origin;
     NSPoint _convertedOrigin;
     float _scale;
+    NSRect _selectedRect;
 }
 
 @property (weak, nonatomic) LATOriginView *originView;
@@ -38,6 +39,7 @@ typedef NS_ENUM(NSUInteger, RCState) {
 - (NSRect)invertedRect:(NSRect)rect;
 - (int)maxAllowedWidth;
 - (int)maxAllowedHeight;
+- (void)copySnippetToPasteBoardForCurrentRect;
 
 @end
 
@@ -190,7 +192,7 @@ typedef NS_ENUM(NSUInteger, RCState) {
 }
 
 - (void)updateCoordinateLabelWithRect:(NSRect)rect {
-    
+    _selectedRect = NSIntegralRectWithOptions(rect, NSAlignAllEdgesOutward | NSAlignRectFlipped);
     [self.coordinateField setStringValue:[NSString stringWithFormat:@"X: %.2f, Y: %.2f, W: %.2f, H: %.2f", rect.origin.x / _scale, rect.origin.y / _scale, rect.size.width / _scale, rect.size.height / _scale]];
 }
 
@@ -200,6 +202,17 @@ typedef NS_ENUM(NSUInteger, RCState) {
 
 - (int)maxAllowedWidth {
     return (int)([[NSScreen mainScreen] frame].size.width * 0.7f);
+}
+
+- (void)copySnippetToPasteBoardForCurrentRect {
+    
+    NSString *snippet = [NSString stringWithFormat:@"CGRectMake(%d.0f, %d.0f, %d.0f, %d.0f)", (int)_selectedRect.origin.x, (int)_selectedRect.origin.y, (int)_selectedRect.size.width, (int)_selectedRect.size.height];
+    
+    NSPasteboard *pasteBoard = [NSPasteboard generalPasteboard];
+    [pasteBoard declareTypes:@[NSPasteboardTypeString] owner:self];
+    [pasteBoard setString:snippet forType:NSPasteboardTypeString];
+
+
 }
 
 #pragma mark - LATMouseDelegate methods
@@ -234,7 +247,7 @@ typedef NS_ENUM(NSUInteger, RCState) {
 
 - (void)mouseLocationDidChange:(NSPoint)newLocation forView:(NSResponder *)view {
     
-    NSPoint centerPoint = NSMakePoint((int)(newLocation.x - floorf(self.originView.frame.size.width / 2)), (int)(newLocation.y - floorf(self.originView.frame.size.height / 2)));
+    NSPoint centerPoint = NSMakePoint((newLocation.x - floorf(self.originView.frame.size.width / 2)), (newLocation.y - floorf(self.originView.frame.size.height / 2)));
 
     [self.originView setFrameOrigin:centerPoint];
     
@@ -246,7 +259,7 @@ typedef NS_ENUM(NSUInteger, RCState) {
         NSPoint convertedPoint = [fromView convertPoint:newLocation toView:self.backgroundImageView];
         _origin = convertedPoint;
         CGPoint convertedCGPoint = [self invertedCGPoint:NSPointToCGPoint(convertedPoint) forView:self.backgroundImageView];
-        [self updateCoordinateLabelWithXCoordinate:(int)convertedCGPoint.x yCoordinate:(int)convertedCGPoint.y];
+        [self updateCoordinateLabelWithXCoordinate:convertedCGPoint.x yCoordinate:convertedCGPoint.y];
     }
 }
 
@@ -255,6 +268,7 @@ typedef NS_ENUM(NSUInteger, RCState) {
     if (_interactionState == RCStateSelect) {
         
         _interactionState = RCStateOriginSet;
+        [self copySnippetToPasteBoardForCurrentRect];
     }
 }
 
