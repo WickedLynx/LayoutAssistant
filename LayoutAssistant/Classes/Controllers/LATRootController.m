@@ -78,7 +78,7 @@ typedef NS_ENUM(NSUInteger, RCState) {
     
     NSImage *image = self.backgroundImageView.image;
     
-    NSWindow *keyWindow = [[NSApplication sharedApplication] mainWindow];
+    NSWindow *keyWindow = [[[NSApplication sharedApplication] windows] objectAtIndex:0];
     
     NSRect keyWindowTargetFrame = keyWindow.frame;
     
@@ -131,7 +131,7 @@ typedef NS_ENUM(NSUInteger, RCState) {
         [self.originView setFrameOrigin:NSMakePoint(self.backgroundImageView.frame.origin.x, self.backgroundImageView.frame.origin.y + self.backgroundImageView.frame.size.height)];
         
         
-        [[[NSApplication sharedApplication] mainWindow] setAcceptsMouseMovedEvents:YES];
+        [[[[NSApplication sharedApplication] windows] objectAtIndex:0] setAcceptsMouseMovedEvents:YES];
     }
     
 
@@ -222,7 +222,7 @@ typedef NS_ENUM(NSUInteger, RCState) {
 
     if (_interactionState == RCStateImageChosen) {
         
-        [[[NSApplication sharedApplication] mainWindow] setAcceptsMouseMovedEvents:NO];
+        [[[[NSApplication sharedApplication] windows] objectAtIndex:0] setAcceptsMouseMovedEvents:NO];
         _interactionState = RCStateOriginSet;
         
         
