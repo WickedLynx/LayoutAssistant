@@ -192,8 +192,9 @@ typedef NS_ENUM(NSUInteger, RCState) {
 }
 
 - (void)updateCoordinateLabelWithRect:(NSRect)rect {
-    _selectedRect = NSIntegralRectWithOptions(rect, NSAlignAllEdgesOutward | NSAlignRectFlipped);
-    [self.coordinateField setStringValue:[NSString stringWithFormat:@"X: %.2f, Y: %.2f, W: %.2f, H: %.2f", rect.origin.x / _scale, rect.origin.y / _scale, rect.size.width / _scale, rect.size.height / _scale]];
+    NSRect scaledRect = NSMakeRect(rect.origin.x / _scale, rect.origin.y / _scale, rect.size.width / _scale, rect.size.height / _scale);
+    _selectedRect = NSIntegralRectWithOptions(scaledRect, NSAlignAllEdgesOutward | NSAlignRectFlipped);
+    [self.coordinateField setStringValue:[NSString stringWithFormat:@"X: %.2f, Y: %.2f, W: %.2f, H: %.2f", _selectedRect.origin.x, _selectedRect.origin.y, _selectedRect.size.width, _selectedRect.size.height]];
 }
 
 - (int)maxAllowedHeight {
