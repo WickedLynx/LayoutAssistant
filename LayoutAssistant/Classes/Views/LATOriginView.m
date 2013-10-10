@@ -26,10 +26,9 @@
 
 - (void)drawRect:(NSRect)dirtyRect
 {
-//    CGRect convertedRect = CGRectMake(0, dirtyRect.size.height, dirtyRect.size.width, dirtyRect.size.height);
-    CGRect convertedRect = NSRectToCGRect(dirtyRect);
+    CGRect convertedRect = NSRectToCGRect(self.bounds);
     
-    CGRect ellipseRect = CGRectMake(dirtyRect.origin.x + floorf(dirtyRect.size.width * 0.125f), floorf(dirtyRect.size.height * 0.125f), floorf(dirtyRect.size.width - floorf(dirtyRect.size.width * 0.25f)), floorf(dirtyRect.size.height - dirtyRect.size.height * 0.25f));
+    CGRect ellipseRect = CGRectMake(self.bounds.origin.x + floorf(self.bounds.size.width * 0.125f), floorf(self.bounds.size.height * 0.125f), floorf(self.bounds.size.width - floorf(self.bounds.size.width * 0.25f)), floorf(self.bounds.size.height - self.bounds.size.height * 0.25f));
     
     
     CGContextRef context = [[NSGraphicsContext currentContext] graphicsPort];

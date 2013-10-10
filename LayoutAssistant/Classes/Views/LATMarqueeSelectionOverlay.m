@@ -26,7 +26,7 @@
 - (void)drawRect:(NSRect)dirtyRect
 {
     // Drawing code here.
-    CGRect convertedRect = NSRectToCGRect(dirtyRect);
+    CGRect convertedRect = NSRectToCGRect(self.bounds);
     
     CGContextRef currentContext = [[NSGraphicsContext currentContext] graphicsPort];
     
