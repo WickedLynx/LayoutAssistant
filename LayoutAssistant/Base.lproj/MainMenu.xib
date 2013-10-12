@@ -674,8 +674,27 @@
                     </textField>
                 </subviews>
             </view>
-            <toolbar key="toolbar" implicitIdentifier="60E90A0A-0F4C-4613-AD88-726A9477FB55" autosavesConfiguration="NO" displayMode="iconAndLabel" sizeMode="regular" id="b9V-1z-n30">
+            <toolbar key="toolbar" implicitIdentifier="60E90A0A-0F4C-4613-AD88-726A9477FB55" autosavesConfiguration="NO" allowsUserCustomization="NO" displayMode="iconAndLabel" sizeMode="regular" id="b9V-1z-n30">
                 <allowedToolbarItems>
+                    <toolbarItem implicitItemIdentifier="46A2F39A-EFA6-48EF-B431-742AF3CE5EE6" label="Scaling" paletteLabel="Scaling" id="Ihx-jh-qWY">
+                        <nil key="toolTip"/>
+                        <size key="minSize" width="70" height="25"/>
+                        <size key="maxSize" width="79" height="25"/>
+                        <segmentedControl key="view" verticalHuggingPriority="750" id="d7S-ap-ToQ">
+                            <rect key="frame" x="0.0" y="14" width="77" height="25"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
+                            <segmentedCell key="cell" alignment="left" style="texturedRounded" trackingMode="selectOne" id="jf6-95-dwO">
+                                <font key="font" metaFont="system"/>
+                                <segments>
+                                    <segment label="1x" width="35" selected="YES"/>
+                                    <segment label="2x" width="35" tag="1"/>
+                                </segments>
+                            </segmentedCell>
+                            <connections>
+                                <action selector="clickScaling:" target="KNk-y0-Kca" id="5Dd-Lc-9WI"/>
+                            </connections>
+                        </segmentedControl>
+                    </toolbarItem>
                     <toolbarItem implicitItemIdentifier="DE855F43-0EED-46BC-A44B-AB958302A877" label="Restart" paletteLabel="Restart" id="CEq-oy-oTh">
                         <nil key="toolTip"/>
                         <size key="minSize" width="39" height="38"/>
@@ -712,6 +731,8 @@
                 </allowedToolbarItems>
                 <defaultToolbarItems>
                     <toolbarItem reference="CEq-oy-oTh"/>
+                    <toolbarItem reference="3IP-54-37f"/>
+                    <toolbarItem reference="Ihx-jh-qWY"/>
                     <toolbarItem reference="3IP-54-37f"/>
                     <toolbarItem reference="etI-z2-xan"/>
                 </defaultToolbarItems>

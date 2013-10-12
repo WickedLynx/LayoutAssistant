@@ -137,6 +137,36 @@ typedef NS_ENUM(NSUInteger, RCState) {
     
 }
 
+- (IBAction)clickScaling:(id)sender {
+    
+    if ([sender isKindOfClass:[NSSegmentedControl class]]) {
+        
+        NSSegmentedControl *scalingControl = (NSSegmentedControl *)sender;
+        
+        float oldScale = _scale;
+        
+        switch (scalingControl.selectedSegment) {
+                
+            case 0:
+                _scale = _scale / 2;
+                break;
+                
+            case 1:
+                _scale = _scale * 2;
+                break;
+                
+            default:
+                break;
+        }
+        
+        _origin.x = _origin.x * oldScale;
+        _origin.y = _origin.y * oldScale;
+        
+        _origin.x = _origin.x / _scale;
+        _origin.y = _origin.y / _scale;
+    }
+}
+
 #pragma mark - Priavate methods
 
 - (LATOriginView *)originView {

@@ -18,5 +18,6 @@
 - (IBAction)imageDropped:(id)sender;
 - (IBAction)clickRestart:(id)sender;
 - (IBAction)clickSetOrigin:(id)sender;
+- (IBAction)clickScaling:(id)sender;
 
 @end
