@@ -106,7 +106,6 @@ typedef NS_ENUM(NSUInteger, RCState) {
     [keyWindow setFrame:keyWindowTargetFrame display:YES animate:YES];
     
     [self.backgroundImageView setEditable:NO];
-    [self.backgroundImageView setEnabled:NO];
     
     _interactionState = RCStateImageChosen;
 
@@ -171,7 +170,7 @@ typedef NS_ENUM(NSUInteger, RCState) {
 - (CGPoint)invertedCGPoint:(CGPoint)point forView:(NSView *)view {
     
     CGPoint pointToReturn = point;
-    pointToReturn.y = view.frame.size.height - point.y;
+    pointToReturn.y = floorf(view.frame.size.height - point.y);
     
     return pointToReturn;
 }
@@ -188,12 +187,13 @@ typedef NS_ENUM(NSUInteger, RCState) {
 
 - (void)updateCoordinateLabelWithXCoordinate:(CGFloat)xCoordinate yCoordinate:(CGFloat)yCoordinate {
     
-    [self.coordinateField setStringValue:[NSString stringWithFormat:@"X: %.2f, Y: %.2f", xCoordinate / _scale, yCoordinate / _scale]];
+    [self.coordinateField setStringValue:[NSString stringWithFormat:@"X: %.2f, Y: %.2f", floorf(xCoordinate / _scale), floorf(yCoordinate / _scale)]];
 }
 
 - (void)updateCoordinateLabelWithRect:(NSRect)rect {
     NSRect scaledRect = NSMakeRect(rect.origin.x / _scale, rect.origin.y / _scale, rect.size.width / _scale, rect.size.height / _scale);
-    _selectedRect = NSIntegralRectWithOptions(scaledRect, NSAlignAllEdgesOutward | NSAlignRectFlipped);
+    _selectedRect = CGRectIntegral(scaledRect);
+
     [self.coordinateField setStringValue:[NSString stringWithFormat:@"X: %.2f, Y: %.2f, W: %.2f, H: %.2f", _selectedRect.origin.x, _selectedRect.origin.y, _selectedRect.size.width, _selectedRect.size.height]];
 }
 
@@ -207,7 +207,7 @@ typedef NS_ENUM(NSUInteger, RCState) {
 
 - (void)copySnippetToPasteBoardForCurrentRect {
     
-    NSString *snippet = [NSString stringWithFormat:@"CGRectMake(%d.0f, %d.0f, %d.0f, %d.0f)", (int)_selectedRect.origin.x, (int)_selectedRect.origin.y, (int)_selectedRect.size.width, (int)_selectedRect.size.height];
+    NSString *snippet = [NSString stringWithFormat:@"CGRectMake(%.2ff, %.2ff, %.2ff, %.2ff)", _selectedRect.origin.x, _selectedRect.origin.y, _selectedRect.size.width, _selectedRect.size.height];
     
     NSPasteboard *pasteBoard = [NSPasteboard generalPasteboard];
     [pasteBoard declareTypes:@[NSPasteboardTypeString] owner:self];
@@ -239,7 +239,7 @@ typedef NS_ENUM(NSUInteger, RCState) {
 - (void)selectedRect:(NSRect)rect inView:(NSResponder *)view {
     
     if (_interactionState == RCStateSelect) {
-
+        rect = CGRectIntegral(rect);
         [self.selectionOverlay setFrame:rect];
         NSRect convertedRect = [self.rootView convertRect:rect toView:self.backgroundImageView];
         [self updateCoordinateLabelWithRect:[self invertedRect:convertedRect]];
@@ -248,9 +248,10 @@ typedef NS_ENUM(NSUInteger, RCState) {
 
 - (void)mouseLocationDidChange:(NSPoint)newLocation forView:(NSResponder *)view {
     
-    NSPoint centerPoint = NSMakePoint((newLocation.x - floorf(self.originView.frame.size.width / 2)), (newLocation.y - floorf(self.originView.frame.size.height / 2)));
+    NSPoint centerPoint = NSMakePoint(floorf(newLocation.x - (self.originView.frame.size.width / 2)), floorf(newLocation.y - (self.originView.frame.size.height / 2)));
 
     [self.originView setFrameOrigin:centerPoint];
+    
     
     [self.originView setHidden:!NSContainsRect(self.rootView.frame, self.originView.frame)];
     
@@ -258,6 +259,7 @@ typedef NS_ENUM(NSUInteger, RCState) {
 
         NSView *fromView = (NSView *)view;
         NSPoint convertedPoint = [fromView convertPoint:newLocation toView:self.backgroundImageView];
+        convertedPoint = NSMakePoint(floorf(convertedPoint.x), floorf(convertedPoint.y));
         _origin = convertedPoint;
         CGPoint convertedCGPoint = [self invertedCGPoint:NSPointToCGPoint(convertedPoint) forView:self.backgroundImageView];
         [self updateCoordinateLabelWithXCoordinate:convertedCGPoint.x yCoordinate:convertedCGPoint.y];
